@@ -30,6 +30,7 @@ main_tab = dialog.addTab("main_tab","Main")
 main_tab.appendSaveFileChooser("report_csv","Report CSV","Comma Separated Values","csv")
 main_tab.appendHeader("Case Directories")
 main_tab.appendCheckBox("search_subdirectories","Search Sub-Directories",true)
+main_tab.appendSpinner("max_search_depth","Max Search Depth",-1,-1,100)
 main_tab.appendPathList("case_directories")
 main_tab.getControl("case_directories").setFilesButtonVisible(false)
 
@@ -88,6 +89,7 @@ if dialog.getDialogResult == true
 
 	values = dialog.toMap
 	search_subdirectories = values["search_subdirectories"]
+	max_search_depth = values["max_search_depth"]
 	case_directories = values["case_directories"]
 	report_csv = values["report_csv"]
 
@@ -107,7 +109,12 @@ if dialog.getDialogResult == true
 		if search_subdirectories
 			case_directories = case_directories.map do |case_directory|
 				pd.logMessage("Searching sub-directories for cases: #{case_directory}")
-				paths = super_case_utility.findCaseDirectoryPaths(case_directory)
+				if max_search_depth < 0
+					pd.logMessage("Max search depth: #{max_search_depth} (no limit)")
+				else
+					pd.logMessage("Max search depth: #{max_search_depth}")
+				end
+				paths = super_case_utility.findCaseDirectoryPaths(case_directory,max_search_depth)
 				paths.each{|path|pd.logMessage("Found: #{path}")}
 				next paths
 			end
@@ -170,8 +177,7 @@ if dialog.getDialogResult == true
 
 		# What do we do when we open a case and an error occurs
 		case_processor.onErrorOpeningCase do |error_info|
-			pd.logMessage "Error opening case:"
-			pd.logMessage error_info.getError.getMessage
+			pd.logMessage "Error opening case: #{error_info.getError.getMessage}"
 			puts error_info.getError.getStackTrace.map{|s| s.toString}.to_a.join("\n")
 			error_info.skipCase
 
