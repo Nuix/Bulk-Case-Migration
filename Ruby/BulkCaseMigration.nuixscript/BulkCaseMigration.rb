@@ -31,6 +31,7 @@ main_tab.appendSaveFileChooser("report_csv","Report CSV","Comma Separated Values
 main_tab.appendHeader("Case Directories")
 main_tab.appendCheckBox("search_subdirectories","Search Sub-Directories",true)
 main_tab.appendSpinner("max_search_depth","Max Search Depth",-1,-1,100)
+main_tab.enabledOnlyWhenChecked("max_search_depth","search_subdirectories")
 main_tab.appendPathList("case_directories")
 main_tab.getControl("case_directories").setFilesButtonVisible(false)
 
